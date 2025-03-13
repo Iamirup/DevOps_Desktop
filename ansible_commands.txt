@@ -1,0 +1,6 @@
+# simple:
+ansible-playbook play-book.yaml -i inventory --ask-pass
+
+# advanced:
+ansible-playbook -i inventory/host.yaml playbook/preparing.yaml --list-hosts
+ansible-playbook -i inventory/host.yaml playbook/preparing.yaml --list-tags

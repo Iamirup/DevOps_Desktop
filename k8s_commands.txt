@@ -1,0 +1,7 @@
+# Entering a container shell:
+kubectl exec -it foo-backend-6ddfb956cb-n84x8 -n foo-backend -c foo-backend-php -- sh
+                                                                                -- tail -f /var/log/nginx/error.log
+                                                                                -- ls -lah /var/www/html
+
+# See resource consumption of a pod
+kubectl top pod foo-backend-6ddfb956cb-n84x8 -n foo-backend --containers

@@ -1,0 +1,87 @@
+---
+- hosts: servers
+  become: true
+  vars:
+    created_username: amir
+
+  tasks:
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+
+    - name: Setup passwordless sudo
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%sudo'
+        line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+        validate: '/usr/sbin/visudo -cf %s'
+
+    - name: Create a new regular user with sudo privileges
+      user:
+        name: "{{ created_username }}"
+        state: present
+        groups: sudo
+        append: true
+        create_home: true
+        shell: /bin/bash
+
+    - name: Set authorized key for remote user
+      ansible.posix.authorized_key:
+        user: "{{ created_username }}"
+        state: present
+        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+
+    - name: Disable password authentication for root
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin prohibit-password'
+
+    - name: Disable password authentication for all users
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+
+    - name: Change SSH port
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        regexp: '^#?Port'
+        line: 'Port 13828'
+
+    - name: Update apt and install required system packages
+      apt:
+        pkg:
+          - curl
+          - vim
+          - git
+          - ufw
+        state: latest
+        update_cache: true
+
+    - name: Restart SSH service
+      systemd:
+        name: ssh
+        state: restarted
+
+    - name: UFW - Allow SSH connections on custom port
+      community.general.ufw:
+        rule: allow
+        port: 13828
+        proto: tcp
+
+    - name: Reload SSH service to apply new configuration
+      systemd:
+        name: ssh
+        state: reloaded
+
+    - name: Restart SSH service
+      systemd:
+        name: ssh
+        state: restarted

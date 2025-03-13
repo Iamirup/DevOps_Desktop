@@ -1,0 +1,11 @@
+# For MinIO client (after installation from official doc):
+
+mc --autocompletion bash
+
+mc alias set ALIAS HOSTNAME ACCESS_KEY SECRET_KEY
+mc alias set MeCan https://api.object.mecan.ir pzkWH99Y2Dhw3bg7K ihw65AWseZVMBQGRKsMfUpFLG7igF
+
+mc alias ls
+
+# mc config file:
+vim ~/.mc/config.json

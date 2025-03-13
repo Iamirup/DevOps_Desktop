@@ -1,0 +1,8 @@
+# Firewall:
+netstat -tulpn
+ss -tulpn
+sudo lsof -i TCP:80
+
+# IP and DNS check:
+dig +short sub.domain.com
+ifconfig eth0
